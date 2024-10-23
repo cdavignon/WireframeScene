@@ -3,12 +3,12 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-car_z = 0.0
-car_direction = 0.05
-move_car = True
-scene_rotation = 0
-rotate_left = False
-rotate_right = False
+car_z = 0.0 # Moves car forward and backward along z-axis
+car_direction = 0.05 # Speed
+move_car = True # Allows car to move or not
+scene_rotation = 0 # Allows rotation
+rotate_left = False # Rotates left on key held down, initialized as False
+rotate_right = False # Rotates right on key held down, initialized as False
 
 # Draws the cube
 def draw_cube():
@@ -36,8 +36,7 @@ def draw_cube():
         (2, 6),
         (3, 7)
     )
-    
-    #Draws cubes in Wireframe
+    #Draws cube
     glBegin(GL_LINES)
     for edge in edges:
         for vertex in edge:
@@ -47,7 +46,7 @@ def draw_cube():
 def draw_car():
     glPushMatrix()
     glTranslatef(0, 0, car_z) 
-    glRotatef(90, 0, 1, 0)
+    glRotatef(90, 0, 1, 0) # Rotates car to face front
     
     # Bottom Cube
     glPushMatrix()
@@ -70,36 +69,47 @@ def draw_scene():
 def main():
     global car_z, car_direction, move_car, scene_rotation, rotate_left, rotate_right
     
+    # Initialization, similar to light example code
     pygame.init()
-    display = (800, 600)
-    pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
+    screenSize = (800, 600)
+    pygame.display.set_mode(screenSize, pygame.DOUBLEBUF | pygame.OPENGL)
 
-    gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+    # Perspective
+    gluPerspective(45, (screenSize[0] / screenSize[1]), 0.1, 50.0)
     glTranslatef(0.0, 0.0, -20)
+    # Car is seen at a more top-down angle
+    glRotatef(15, 1, 0, 0)
     
     clock = pygame.time.Clock()
 
     while True:
         for event in pygame.event.get():
+            # Allows quit on 'X' button
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            # Key down, to hold rotate instead of pressing multiple times
             if event.type == KEYDOWN:
+                # Esc quite
                 if event.key == K_ESCAPE:
                     pygame.quit()
                     quit()
+                # Space stops animation
                 if event.key == K_SPACE:
                     move_car = not move_car
+                # Left arrow rotates
                 if event.key == K_LEFT:
                     rotate_left = True
+                # Right arrow rotates
                 if event.key == K_RIGHT:
                     rotate_right = True
+            # If key is up, stop rotates
             if event.type == KEYUP:
                 if event.key == K_LEFT:
                     rotate_left = False
                 if event.key == K_RIGHT:
                     rotate_right = False
-        
+        # Clear screen, similar to light example code
         glClearColor(0.0, 0.0, 0.0, 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glFlush()
@@ -109,7 +119,7 @@ def main():
         if rotate_right:
             scene_rotation += 1
         
-        # Rotate the entire scene
+        # Allows rotation to the be changed
         glPushMatrix()
         glRotatef(scene_rotation, 0, 1, 0)
         
@@ -118,7 +128,6 @@ def main():
             car_z += car_direction  # Update car's z position
             if car_z >= 8 or car_z <= -8:
                 car_direction = -car_direction  # Reverse the car's direction
-        
         draw_scene()
 
         glPopMatrix()
@@ -126,5 +135,4 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()
